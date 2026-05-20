@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Message extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'parcel_id',
+        'sender_id',
+        'content',
+        'is_system_message',
+        'read_at',
+    ];
+
+    protected $casts = [
+        'is_system_message' => 'boolean',
+        'read_at' => 'datetime',
+    ];
+
+    public function parcel()
+    {
+        return $this->belongsTo(Parcel::class);
+    }
+
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+}

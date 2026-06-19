@@ -147,8 +147,8 @@ class ParcelController extends Controller
     {
         $parcel = Parcel::findOrFail($id);
 
-        if ($parcel->sender_id !== $request->user()->id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if ((int) $parcel->sender_id !== (int) $request->user()->id && $request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Vous n’êtes pas l’expéditeur de ce colis.'], 403);
         }
 
         if ($parcel->status !== 'published') {
@@ -273,8 +273,8 @@ class ParcelController extends Controller
     {
         $parcel = Parcel::findOrFail($id);
 
-        if ($parcel->sender_id !== $request->user()->id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if ((int) $parcel->sender_id !== (int) $request->user()->id && $request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Vous n’êtes pas l’expéditeur de ce colis.'], 403);
         }
 
         if (!in_array($parcel->status, ['published', 'assigned'], true)) {

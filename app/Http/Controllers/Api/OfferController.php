@@ -10,6 +10,21 @@ use Illuminate\Support\Facades\Validator;
 
 class OfferController extends Controller
 {
+    private function userId(Request $request): int
+    {
+        return (int) $request->user()->id;
+    }
+
+    private function userIsParcelSender(Request $request, Parcel $parcel): bool
+    {
+        return (int) $parcel->sender_id === $this->userId($request);
+    }
+
+    private function userIsAdmin(Request $request): bool
+    {
+        return $request->user()->role === 'admin';
+    }
+
     /**
      * Propositions de l'utilisateur : envoyées (relais) ou reçues (expéditeur).
      */
@@ -29,12 +44,18 @@ class OfferController extends Controller
             ])
             ->latest();
 
+        $userId = $this->userId($request);
+
         if ($role === 'sent') {
-            $query->where('courier_id', $request->user()->id);
+            $query->where('courier_id', $userId);
         } else {
-            $query->whereHas('parcel', function ($q) use ($request) {
-                $q->where('sender_id', $request->user()->id);
+            $query->whereHas('parcel', function ($q) use ($userId) {
+                $q->where('sender_id', $userId);
             });
+        }
+
+        if ($request->filled('parcel_id')) {
+            $query->where('parcel_id', (int) $request->query('parcel_id'));
         }
 
         if ($request->filled('status')) {
@@ -48,8 +69,10 @@ class OfferController extends Controller
     {
         $parcel = Parcel::findOrFail($parcelId);
 
-        if ($parcel->sender_id !== $request->user()->id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (! $this->userIsParcelSender($request, $parcel) && ! $this->userIsAdmin($request)) {
+            return response()->json([
+                'message' => 'Vous n’êtes pas l’expéditeur de ce colis.',
+            ], 403);
         }
 
         return response()->json(
@@ -111,11 +134,11 @@ class OfferController extends Controller
 
         // Allow sender or courier to counter as long as still pending.
         $userId = $request->user()->id;
-        $isSender = $parcel->sender_id === $userId;
-        $isCourier = $offer->courier_id === $userId;
+        $isSender = (int) $parcel->sender_id === (int) $userId;
+        $isCourier = (int) $offer->courier_id === (int) $userId;
 
-        if (!$isSender && !$isCourier && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (! $isSender && ! $isCourier && ! $this->userIsAdmin($request)) {
+            return response()->json(['message' => 'Accès refusé à cette proposition.'], 403);
         }
 
         if ($offer->status !== 'pending') {
@@ -162,8 +185,8 @@ class OfferController extends Controller
         $offer = ParcelOffer::with('parcel')->findOrFail($offerId);
         $parcel = $offer->parcel;
 
-        if ($parcel->sender_id !== $request->user()->id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (! $this->userIsParcelSender($request, $parcel) && ! $this->userIsAdmin($request)) {
+            return response()->json(['message' => 'Vous n’êtes pas l’expéditeur de ce colis.'], 403);
         }
 
         if ($offer->status !== 'pending') {
@@ -208,8 +231,8 @@ class OfferController extends Controller
         $offer = ParcelOffer::with('parcel')->findOrFail($offerId);
         $parcel = $offer->parcel;
 
-        if ($parcel->sender_id !== $request->user()->id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (! $this->userIsParcelSender($request, $parcel) && ! $this->userIsAdmin($request)) {
+            return response()->json(['message' => 'Vous n’êtes pas l’expéditeur de ce colis.'], 403);
         }
 
         if ($offer->status !== 'pending') {

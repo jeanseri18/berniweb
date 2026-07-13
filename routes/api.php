@@ -71,7 +71,7 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\EnsureUserNotSuspended::
     // KYC
     Route::post('/kyc', [KycController::class, 'submit']);
     Route::get('/kyc/status', [KycController::class, 'status']);
-    Route::get('/kyc', [KycController::class, 'get']);
+    Route::get('/kyc-user', [KycController::class, 'get']);
 
     // Wallet
     Route::get('/wallet', [WalletController::class, 'show']);

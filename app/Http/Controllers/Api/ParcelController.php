@@ -117,6 +117,10 @@ class ParcelController extends Controller
             'status' => 'published',
             'verification_code' => (string) random_int(100000, 999999),
             'payment_status' => 'pending', // In real app, prompt payment here
+
+            'images' => 'nullable|array',
+            'images.*' => 'string',
+            'photo_visibility' => 'nullable|integer',
         ]);
 
         $request->user()->notify(new ParcelPublishedNotification($parcel));
@@ -156,7 +160,7 @@ class ParcelController extends Controller
                 'message' => 'Ce colis ne peut plus être modifié (déjà pris en charge ou terminé).',
             ], 422);
         }
-
+ 
         $validator = Validator::make($request->all(), [
             'description' => 'sometimes|required|string',
             'category' => 'nullable|string|max:50',
@@ -169,6 +173,10 @@ class ParcelController extends Controller
             'recipient_note' => 'nullable|string|max:2000',
             'price' => 'sometimes|required|numeric|min:0',
             'weight' => 'sometimes|required|numeric|min:0',
+
+            'images' => 'nullable|array',
+            'images.*' => 'string',
+            'photo_visibility' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {

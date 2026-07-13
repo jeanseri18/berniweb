@@ -97,12 +97,20 @@ class ParcelController extends Controller
             'weight' => 'required|numeric|min:0',
 
             'images' => 'nullable|array',
-            'images.*' => 'string',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
             'photo_visibility' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
+        }
+
+        $images = [];
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $images[] = $image->store('parcels', 'public');
+            }
         }
 
         $parcel = Parcel::create([
@@ -125,8 +133,9 @@ class ParcelController extends Controller
           //  'images' => 'nullable|array',
           //  'images.*' => 'string',
           //  'photo_visibility' => 'nullable|integer',
-            'images' => $request->input('images', null),
+            'images' => $images,
             'photo_visibility' => $request->input('photo_visibility', 0),
+            // 'photo_visibility' => $request->input('photo_visibility', 0),
         ]);
 
         $request->user()->notify(new ParcelPublishedNotification($parcel));

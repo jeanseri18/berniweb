@@ -95,6 +95,10 @@ class ParcelController extends Controller
             'recipient_note' => 'nullable|string|max:2000',
             'price' => 'required|numeric|min:0',
             'weight' => 'required|numeric|min:0',
+
+            'images' => 'nullable|array',
+            'images.*' => 'string',
+            'photo_visibility' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -179,8 +183,9 @@ class ParcelController extends Controller
           //  'images' => 'nullable|array',
           //  'images.*' => 'string',
           //  'photo_visibility' => 'nullable|integer',
-          'images' => $request->input('images', null),
-            'photo_visibility' => $request->input('photo_visibility', 0),
+            'images' => 'nullable|array',
+            'images.*' => 'string',
+            'photo_visibility' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {

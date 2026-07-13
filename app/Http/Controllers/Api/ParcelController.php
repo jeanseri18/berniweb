@@ -95,6 +95,10 @@ class ParcelController extends Controller
             'recipient_note' => 'nullable|string|max:2000',
             'price' => 'required|numeric|min:0',
             'weight' => 'required|numeric|min:0',
+
+            'images' => 'nullable|array',
+            'images.*' => 'string',
+            'photo_visibility' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -118,9 +122,11 @@ class ParcelController extends Controller
             'verification_code' => (string) random_int(100000, 999999),
             'payment_status' => 'pending', // In real app, prompt payment here
 
-            'images' => 'nullable|array',
-            'images.*' => 'string',
-            'photo_visibility' => 'nullable|integer',
+          //  'images' => 'nullable|array',
+          //  'images.*' => 'string',
+          //  'photo_visibility' => 'nullable|integer',
+            'images' => $request->input('images', null),
+            'photo_visibility' => $request->input('photo_visibility', 0),
         ]);
 
         $request->user()->notify(new ParcelPublishedNotification($parcel));
@@ -174,6 +180,9 @@ class ParcelController extends Controller
             'price' => 'sometimes|required|numeric|min:0',
             'weight' => 'sometimes|required|numeric|min:0',
 
+          //  'images' => 'nullable|array',
+          //  'images.*' => 'string',
+          //  'photo_visibility' => 'nullable|integer',
             'images' => 'nullable|array',
             'images.*' => 'string',
             'photo_visibility' => 'nullable|integer',

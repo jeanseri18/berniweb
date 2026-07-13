@@ -25,6 +25,14 @@ class KycController extends Controller
             'availability_hint' => 'nullable|string|max:255',
             'payment_kind' => 'nullable|string|in:wallet,momo',
             'momo_number' => 'nullable|string|max:30',
+
+            'full_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:30',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string',
+
+            'payment_method' => 'nullable|string|max:255',
+            'payment_account' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -56,6 +64,14 @@ class KycController extends Controller
             'id_card_back' => $paths['id_card_back'],
             'selfie' => $paths['selfie'],
             'selfie_with_id' => $paths['selfie_with_id'],
+
+            'full_name' => $request->input('full_name'),
+            'phone' => $request->input('phone'),
+            'email' => $request->input('email'),
+            'address' => $request->input('address'),
+
+            'payment_method' => $request->input('payment_method'),
+            'payment_account' => $request->input('payment_account'),
         ]);
 
         $request->user()->update(['courier_status' => 'pending']);
@@ -67,5 +83,22 @@ class KycController extends Controller
     {
         $submission = KycSubmission::where('user_id', $request->user()->id)->latest()->first();
         return response()->json(['status' => $request->user()->courier_status, 'submission' => $submission]);
+    }
+
+    public function get(Request $request)
+    {
+        $submission = KycSubmission::where('user_id', $request->user()->id)
+            ->latest()
+            ->first();
+
+        if (!$submission) {
+            return response()->json([
+                'message' => 'Aucun dossier KYC trouvé.'
+            ], 404);
+        }
+
+        return response()->json([
+            'submission' => $submission
+        ], 200);
     }
 }

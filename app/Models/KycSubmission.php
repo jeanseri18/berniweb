@@ -26,8 +26,15 @@ class KycSubmission extends Model
         'momo_number',
         'status',
         'admin_notes',
-    ];
+        'full_name',
+        'phone',
+        'email',
+        'address',
+        'payment_method',
+        'payment_account'
 
+    ];
+ 
     public function user()
     {
         return $this->belongsTo(User::class);

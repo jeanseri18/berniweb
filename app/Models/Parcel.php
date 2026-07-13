@@ -26,6 +26,9 @@ class Parcel extends Model
         'status',
         'verification_code',
         'payment_status',
+
+        'images',
+        'photo_visibility',
     ];
 
     protected $casts = [
@@ -33,6 +36,9 @@ class Parcel extends Model
         'price' => 'decimal:2',
         'weight' => 'decimal:2',
         'fragile' => 'boolean',
+
+        'images' => 'array',
+        'photo_visibility' => 'integer',
     ];
 
     public function sender()
